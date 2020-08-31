@@ -1,0 +1,253 @@
+<html>
+	<head>
+		<link rel="stylesheet" href="index.css">
+		<script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+	</head>
+	<body>
+		<div id="">
+			<app-nav></app-nav>
+			<app-view>
+			  <app-sidebar></app-sidebar>
+			  <app-content></app-content>
+			</app-view>
+		  </div>
+
+		<div id="app">
+			{{ message }}
+		</div>
+		
+		<div id="app-2">
+			<span v-bind:title="message">
+				마우스를 올리면 <strong>동적</strong>으로 바인딩 된 title을 볼 수 있음
+			</span>
+		</div>
+
+		<div id="app-3">
+			<p v-if="seen">v-if 볼수 있음</p>
+			<p v-if="seen2">v-if 볼수 없음</p>
+		</div>
+
+		<div id="app-4">
+			<ol>
+				<li v-for="todo in todos">
+					{{todo.text}}
+				</li>
+			</ol>
+		</div>
+		
+		<p>콘솔에서, app4.todos.push({ text: 'New item' })을 입력하십시오.</p>
+		<p>Todo 목록에 새 항목이 동적으로 추가 된것을 볼 수 있습니다.</p>
+
+		<div id="app-5">
+			<p>{{ message }}</p>
+			<button v-on:click="reverseMessage">메시지 뒤집기</button>
+		</div>
+
+		<div id="app-6">
+			<p>{{ message }}</p>
+			<input v-model="message">
+		</div>
+
+		<div id="app-7">
+			<ol>
+				<todo-tiem
+					v-for="item in groceryList"
+					v-bind:todo="item"
+					v-bind:key="item.id"
+				>
+				</todo-tiem>
+			</ol>
+		</div>
+
+		<div id="test1">
+			<p v-once>다시 변경하지 않습니다: {{ a }}</p>
+			<p>{{ a }}</p>
+			<!-- <p >{{ b }}</p> -->
+		</div>
+
+		<div id="app-8">
+			<p>{{ foo }}</p>
+			<p>{{ foo }}</p>
+			<!-- obj.foo는 더이상 변하지 않습니다! -->
+			<button v-on:click="foo = 'baz'">change it</button>
+		</div>
+
+		<div id="app-9">
+			<p>using mustaches: {{ rawHtml }}</p>
+			<p>using v-html directive: <span v-html="rawHtml"></span></p>
+			<div v-bind:id="dynamicId"></div>
+			<p>{{ number +1 }}</p>
+			<p>{{ ok? 'YES' : 'NO' }}</p>
+			<p>{{ message.split('').reverse().join('') }}</p>
+			<button v-bind:disabled="isButtonDisabled">button</button>
+		</div>
+
+		<!-- 전제 문법 -->
+		<a v-bind:href="">...</a>
+		<!-- 약어 -->
+		<a :href="">...</a>
+		<!-- shorthand with dynamic argument (2.6.0+) -->
+		<a :[key]="url"> ... </a>
+		<!-- 전체 문법 -->
+		<a v-on:click="doSomething"> ... </a>
+		<!-- 약어 -->
+		<a @click="doSomething"> ... </a>
+		<!-- shorthand with dynamic argument (2.6.0+) -->
+		<a @[event]="doSomething"> ... </a>
+
+
+		<div id="example">
+			<p>원본 메시지: {{ message }}</p>
+			<p>역순 : {{ reversedMessage }}</p>
+			<p>Date.now : {{ now }}</p>
+			<button @click="fn_test">test</button>
+		</div>
+
+		<!-- computed 속성 대신 메소드와 같은 함수를 정의할 수도 있습니다. -->
+		<!-- 최종 결과에 대해 두 가지 접근 방식은 서로 동일합니다. -->
+		<!-- 차이점은 computed 속성은 종속 대상을 따라 저장(캐싱)된다는 것 입니다. -->
+		<!-- computed 속성은 해당 속성이 종속된 대상이 변경될 때만 함수를 실행 -->
+		<!-- 즉 message가 변경되지 않는 한, 
+		computed 속성인 reversedMessage를 여러 번 요청해도 
+		계산을 다시 하지 않고 계산되어 있던 결과를 즉시 반환 -->
+		<!-- 캐싱이 왜 필요할까요? -->
+		<script>
+			var vm3 = new Vue({
+				el:"#example",
+				data:{
+					message: '안녕하세요'
+				},
+				computed:{
+					reversedMessage: function(){
+						return this.message.split('').reverse().join('');
+					},
+					now: function () {
+						return Date.now()
+					}
+				},
+				methods:{
+					reverseMessage2: function(){
+						
+						return this.message.split('').reverse().join('');
+					},
+					fn_test: function(){
+						alert("test");
+					}
+				}
+			});
+			vm3.message = '메세지 변경';
+			vm3.reverseMessage2();
+		</script>
+
+<!-- computed 속성 vs watch 속성 -->
+		<div id="demo">{{ fullName }}</div>
+		<div id="demo2">{{ fullName }}</div>
+		<script>
+			var vm4 = new Vue({
+				el: '#demo',
+				data: {
+					firstName: 'Foo',
+					lastName: 'Bar',
+					fullName: 'Foo Bar'
+				},
+				watch: {
+					firstName: function (val){
+						console.log(val);
+						this.fullName = val + ' ' + this.lastName;
+					},
+					lastName: function (val){
+						console.log(val);
+						this.fullName = this.firstName + ' ' + val;
+					},
+					fullName: function(val){
+						console.log(val);
+						console.log("@@@@@@@@@@test");
+						var names = val.split(' ');
+						this.firstName = names[0];
+						this.lastName = names[names.length -1];
+						this.fullName = this.firstName + ' ' + this.lastName;
+						// this.fullName = val;
+					}
+
+				}
+			});
+			
+			vm4.lastName = '이박';
+			vm4.fullName = '풀 네임';
+			vm4.firstName = '김';
+			vm4.firstName = '김';
+			
+			var vm5 = new Vue({
+				el: "#demo2",
+				data: {
+					firstName: 'Foo',
+					lastName: 'Bar'
+				},
+				computed: {
+					// 기본적으로 getter..
+					// fullName: function(){
+					// 	return this.firstName + ' ' + this.lastName;
+					// }
+
+					fullName:{
+						get: function(){
+							return this.firstName + ' ' + this.lastName;
+						},
+						set: function(newVal){
+							var names = newVal.split(' ');
+							this.firstName = names[0];
+							this.lastName = names[names.length -1];
+						}
+					}
+
+				}
+			});
+			vm5.lastName = '김';
+			vm5.firstName = '철수';
+			// vm5.fullName('풀 네임');
+			vm5.fullName = 'John Doe';
+			
+		</script>
+
+<!-- https://skout90.github.io/2018/01/24/Vue/1.1.Computed-VS-Watch/ -->
+<!-- https://icarus8050.tistory.com/21 -->
+		<div id="app10">
+			<button v-on:click="add">Increase</button>
+			<button v-on:click="sub">Decrease</button>
+			<p>Counter : {{ counter }}</p>
+		</div>
+		<script>
+			new Vue({
+				el: '#app10',
+				data: {
+					counter: 0
+				},
+				computed: {
+					output: function() {
+						console.log('Computed');
+						return this.counter;
+					}
+				},
+				methods: {
+					add: function() {
+						this.counter++;
+					},
+					sub: function() {
+						this.counter--;
+					}
+				},
+				watch: {
+					counter: function(newVal, oldVal) {
+						console.log('newVal : ' + newVal);
+						console.log('oldVal : ' + oldVal);
+						console.log(this.counter);
+						return this.counter;
+					}
+				}
+			});
+		</script>
+
+
+		<script src="index.js"></script>
+	</body>
+</html>

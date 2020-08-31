@@ -1,0 +1,165 @@
+<html>
+	<head>
+		<link rel="stylesheet" href="index.css">
+		<script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+	</head>
+	<body>
+
+		<div id="watch-example">
+			<p>
+				yes/no 질문을 물어보세요:
+				<input v-model="question">
+			</p>
+			<p>{{ answer }}</p>
+			<!-- <div class="static"
+				v-bind:class="{ active: isActive, 'text-danger': hasError }"  style="border: 1px black solid; width: 50px; height: 50px;"
+				></div> -->
+				<div v-bind:class="classObject" style="border: 1px black solid; width: 50px; height: 50px;"></div>
+		</div>
+<!-- 이미 Ajax 라이브러리의 풍부한 생태계와 범용 유틸리티 메소드 컬렉션이 있기 때문에, -->
+<!-- Vue 코어는 다시 만들지 않아 작게 유지됩니다. -->
+<!-- 이것은 이미 익숙한 것을 선택할 수 있는 자유를 줍니다. -->
+<script src="https://unpkg.com/axios@0.12.0/dist/axios.min.js"></script>
+<script src="https://unpkg.com/lodash@4.13.1/lodash.min.js"></script>
+		<script>
+			var watchExampleVM = new Vue({
+				el: "#watch-example",
+				data:{
+					question: ''
+					, answer: '질문을 하기 전까지는 대답할 수 없습니다.'
+					// , isActive: true
+					// , hasError: true
+					, classObject :{
+						active: true
+						, 'text-danger': false
+					}
+				},
+				watch: {
+					// 질문이 변경될 때마다 이 기능 실행
+					question: function(newQuestion){
+						this.answer = '입력을 기다리는 중..';
+						this.debouncedGetAnswer();
+					}
+				},
+				created: function(){
+					// _.debounce는 lodash가 제공하는 기능
+					// 특히 시간이 많이 소요되는 작업을 실항할 수 있는 빈도를 제한함
+					// 이 경우, 우리는 yeasno.wtf/api 에 액세스 하는 빈도를 제한,
+					// 사용자가 ajax 요청을 하기 전에 타이핑을 완전히 마칠 때까지 기다리기 바람
+					// _.debounce 함수(또는 이와 유사한 _.throttle)에 대한
+					// 자세한 내용을 보려면 https://lodash.com/docs#debounce
+					this.debouncedGetAnswer = _.debounce(this.getAnswer, 500);
+				},
+				methods:{
+					getAnswer: function(){
+						if(this.question.indexOf('?') === -1){
+							this.answer = '질문에는 일반적으로 물음표가 포함됩니다. ;-)';
+							return;
+						}
+						this.answer = '생각중...';
+						var vm = this;
+						axios.get('https://yesno.wtf/api')
+							.then(function (response){
+								vm.answer = _.capitalize(response.data.answer); // 대문자로.. 어디서 제공하는거지
+							})
+							.catch(function (error){
+								vm.answer = '에러! API 요청에 오류가 있습니다.' + error;
+							});
+							
+					}
+				}
+			});
+		</script>
+
+
+		<div id="test1">
+			<div class="static boxTest"
+				v-bind:class="{ active: isActive, 'text-danger': hasError }"  
+				></div>
+			<div v-bind:class="classObject"></div>	
+			<div v-bind:class="[activeClass, errorClass]" class="boxTest"></div>
+			<div v-bind:class="[isActive ? activeClass : '', errorClass]" class="boxTest"></div>
+			<div v-bind:class="[{ active: isActive }, errorClass]" class="boxTest"></div>
+			<my-component></my-component>
+			<my-component class="bax boo"></my-component>
+			<my-component v-bind:class="{active:isActive}"></my-component>
+			<div v-bind:style="{ color: activeColor, fontSize: fontSize + 'px'}"></div>
+			<div v-bind:style="styleObject"></div>
+			<div v-bind:style="[baseStyle, overridingStyles]"></div>
+			<div v-bind:style="{ display: ['-webkit-box', '-ms-flexbox', 'flex'] }"></div>
+			
+			<p>조건부 렌더링</p>
+			<h1 v-if="awesome">Vue is awesome!</h1>
+			<h1 v-else>Oh no😢</h1>
+			<button v-on:click="changeAwesome">changeAwesome</button>
+			
+			<p></p>
+
+			<div v-if="loginType === 'username'">
+				<label>사용자 이름</label>
+				<input placeholder="사용자 이름을 입력하세요" key="username-input">
+			</div>
+			<div v-else>
+				<label>이메일</label>
+				<input placeholder="이메일 주소를 입력하세요" key="email-input">
+			</div>
+			<button v-on:click="changeLoginType">changeLoginType</button>
+
+			<p></p>
+
+			<!-- v-show는 단순히 엘리먼트에 display CSS 속성을 토글 -->
+			<h1 v-show="ok">hi</h1>
+
+		</div>
+		<script>
+			Vue.component('my-component', {
+				template: '<div class="foo bar">Hi</div>'
+			});
+
+			var test1 = new Vue({
+				el: "#test1"
+				, data:{
+					isActive : true
+					, boxTest: true
+					, error: null
+					, hasError: true
+					, activeClass: 'active'
+					, errorClass: 'text-danger'
+					, activeColor: 'red'
+					, fontSize: 30
+					, styleObject:{
+						color: 'red'
+						, fontSize: '13px'
+						, border: '1px solid black'
+						, width: '50px'
+						, height: '50px'
+					}
+					, baseStyle : {border: '1px solid black'}
+					, overridingStyles : {width: '50px', height: '50px'}
+					, awesome : true
+					, loginType: 'username'
+					, ok: false
+				}
+				, computed: {
+					classObject: function(){
+						return {
+							active: this.isActive && !this.error,
+							boxTest: this.boxTest && !this.error,
+      						'text-danger': this.error && this.error.type === 'fatal'
+						}
+					}
+				}
+				, methods:{
+					changeAwesome: function(){
+						this.awesome = this.awesome ? false : true;
+					}
+					,changeLoginType: function(){
+						this.loginType = this.loginType === 'username' ? 'email' : 'username';
+					}
+				}
+			});
+		</script>
+
+
+	</body>
+</html>

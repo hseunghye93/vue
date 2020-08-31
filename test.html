@@ -1,0 +1,233 @@
+﻿<!DOCTYPE html>
+<html>
+	<head>
+		<title>Vue.js Sample</title>
+	</head>
+	<body>
+<pre>
+Vue Template
+뷰로 화면을 조작하기 위해 제공되는 문법
+뷰 인스턴스에서 관리하는 데이터를 화면에 연결하는 데이터 바인딩
+화면의 조작을 편하게 할 수 있는 디렉티브로 나뉜다.
+</pre>
+
+		<div id="app">
+			{{ message }}
+			<child-component v-bind:propsdata="message"></child-component>
+		</div>
+		<div id="app1">
+			{{ message }}
+			<div>{{ str }}</div>
+			<div>{{ number + 1 }}</div>
+			<div>{{ message.split('').reverse().join('') }}</div>
+		</div>
+		<div id="app2">
+			<my-component></my-component>
+		</div>
+		<div id="app3">
+			<test-component></test-component>
+		</div>
+		<script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+		<script>
+			new Vue({
+				el: "#app1",
+				data: {
+					message: "Hello Vue.js!"
+					, a: 1
+					, str: "string"
+					, number: 10
+				},
+				created: function(){
+					console.log("a is: " + this.a);
+				},
+				mounted: function(){
+					console.log("test");
+					console.log("a is: " + this.a);
+				}
+			});
+
+			new Vue({
+				el: "#app2",
+				// 컴포넌트 등록 코드
+				components: {
+					// '컴포넌트 이름': 컴포넌트 내용
+					"my-component": {
+						template: "<div>A custom component!</div>"
+					}
+				}
+			});
+
+			Vue.component('my-component', {
+				// 컴포넌트 내용
+				template: 'test2'
+			});
+			
+			var testCmp = {
+				// template: 'ttttt'
+				// template: '<div>왜...</div>'
+				// template: '태그가 없으면 에러인가요'
+				template: '<div>컴포넌트 탬플릿은 테그 형식으로</div>'
+			};
+
+			new Vue({
+				el: "#app3",
+				components: {
+					"test-component": testCmp
+				}
+			});
+
+
+			// 하위 컴포넌트
+			Vue.component("child-component", {
+				// 상위 컴포넌트의 data 속성인 message를 propsdata라는 속성으로 넘겨받음
+				props: ["propsdata"],
+				template: '<p>{{ propsdata }}</p>'
+			});
+
+			// 상위 컴포넌트
+			var app = new Vue({
+				el: "#app",
+				data: {
+					message: "hello Vue! from Parent Component"
+				}
+			});
+
+		</script>
+
+		
+		<!-- Vue Routers -->
+		<!-- 뷰를 이용하여 싱글 페이지 애플리케이션을 제작할 때 유용한 라우팅 라이브러리. -->
+		<!-- 뷰 코어 라이브러리와 함께 공식 라이브러리로 지원되고 있다. -->
+		<script src="https://unpkg.com/vue-router/dist/vue-router.js"></script>
+<pre>
+라우팅(영어: routing)
+어떤 네트워크 안에서 통신 데이터를 보낼 때 최적의 경로를 선택하는 과정
+
+라우터 
+Vue 라우터는 기본적으로 '루트 URL'/#/'라우터 이름'의 구조
+example.com/#/user
+여기서 ‘#’ 값을 제외하고 싶으면 아래와 같이 mode 속성을 추가
+</pre>
+
+		<script>
+			new VueRouter({
+				mode: "history"
+			});
+		</script>
+
+<pre>
+Nested Routers
+라우터로 화면을 이동할 때
+네스티드 라우터를 이용하여 지정된 하위 컴포넌트를 표시할 수 있다.
+이 때 컴포넌트의 구조는
+가장 큰 상위의 컴포넌트가 하위의 컴포넌트를 포함하는
+Parent - Child 형태와 같다.
+</pre>
+
+
+<!-- localhost:5000 -->
+<div id="app4">
+  <router-view></router-view>
+</div>
+
+<!-- localhost:5000/home -->
+<div>
+  <p>Main Component rendered</p>
+  <app-header></app-header>
+</div>
+
+<script>
+	var Main ;
+	var AppHeader;
+	var List;
+	// 'localhost:5000/home'에 접근하면 Main과 Header 컴포넌트 둘다 표시된다.
+	new Vue({
+		path : '/home',
+		component: Main,
+		children: [
+			{
+				path: '/',
+				component: AppHeader
+			},
+			{
+				path: '/list',
+				component: List
+			},
+		]
+	});
+</script>
+
+<pre>
+Named Views
+특정 URL로 이동했을 때 여러 개의 컴포넌트를 동시에 표시할 수 있는 방법이다.
+</pre>
+<div id="app">
+  <router-view name="appHeader"></router-view>
+  <router-view></router-view>
+  <router-view name="appFooter"></router-view>
+</div>
+<script>
+	var Body, AppHeader, AppFooter;
+	new Vue({
+		path : '/home',
+		// Named Router
+		components: {
+			appHeader: AppHeader,
+			default: Body,
+			appFooter: AppFooter
+		}
+	});
+</script>
+
+<pre>
+Nested Router vs Named Views
+특정 URL에 지정된 1개의 컴포넌트가 여러 개의 하위 컴포넌트를 갖는 것을 Nested Router
+특정 URL에 여러 개의 컴포넌트를 영역 별로 지정하여 렌더링 하는 것을 Named View
+	
+액시오스(Axios)
+Vue에서 가장 많이 사용하는 HTTP 통신 라이브러리
+</pre>
+<script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+<script>
+	new Vue({
+		methods: {
+			fetchData: function() {
+				axios.get('URL 주소');
+			}
+		}
+	});
+</script>
+
+<pre>
+	Filters
+	</pre>
+	
+	
+	<!-- seen의 진위 값에 따라 p 태그가 화면에 표시 또는 미표시 -->
+	<p v-if="seen">Now you see me</p>
+	<!-- 화면에 a 태그를 표시하는 시점에 뷰 인스턴스의 url 값을 href에 대입 -->
+	<a v-bind:href="url">a url</a>
+	<!-- 버튼에 클릭 이벤트가 발생했을 때 doSomething이라는 메서드를 실행 -->
+	<button v-on:click="doSomething">button</button>
+	<div id="test1">
+		<!-- message 값에 capitalize 필터를 적용하여 첫 글자를 대문자로 변경 -->
+		{{ message | capitalize }}
+	</div>
+	
+	<script>
+		new Vue({
+			el: "#test1",
+			data: {
+				message : "asdf"
+			},
+			filters: {
+				capitalize: function(value) {
+					if (!value) return "";
+					value = value.toString();
+					return value.charAt(0).toUpperCase() + value.slice(1);
+				}
+			}
+		});
+	</script>
+	</body>
+</html>
